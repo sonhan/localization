@@ -1,12 +1,14 @@
 package eu.tsp.sal;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 public class HomeGatewaySimulation extends JFrame {
@@ -17,9 +19,9 @@ public class HomeGatewaySimulation extends JFrame {
     public static final ImageIcon greyIcon = createImageIcon("/res/grey.png");
     
     private GenericSensor sensors[] = {    
-            new GenericSensor("Contact Sensor", 1, 1, 0.2, 50, 50),
-            new GenericSensor("Contact Sensor", 2, 1, 0.2, 100, 100),
-            new GenericSensor("Contact Sensor", 3, 1, 0.2, 150, 150)
+            new GenericSensor("Contact Sensor", 1, 1, 0.2, 250, 50),
+            new GenericSensor("Contact Sensor", 2, 1, 0.2, 250, 100),
+            new GenericSensor("Contact Sensor", 3, 1, 0.2, 250, 150)
                                    };
     
     public HomeGatewaySimulation() {
@@ -29,13 +31,15 @@ public class HomeGatewaySimulation extends JFrame {
         JPanel list = new JPanel();
         list.add(new JLabel(sensors[0].getName()));
         list.setBounds(0, 0, 200, 500);
-        list.setLocation(100, 200);
+        list.setLocation(10, 60);
         this.add(list);
+        //this.add(new JScrollPane(list));
         
         JLabel info = new JLabel("Information");
         //info.setHorizontalAlignment(SwingConstants.CENTER);
-        info.setBounds(0, 0, 200, 50);
-        info.setLocation(100, 150);
+        info.setForeground(Color.RED);
+        info.setBounds(0, 0, 500, 50);
+        info.setLocation(500, 0);
         this.add(info);
         
   
@@ -43,7 +47,7 @@ public class HomeGatewaySimulation extends JFrame {
             this.add(sensor);
                 
         this.pack();
-        //this.setResizable(false);
+        this.setResizable(false);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
