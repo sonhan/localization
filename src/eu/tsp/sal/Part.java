@@ -1,7 +1,6 @@
 package eu.tsp.sal;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,15 +8,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Part {
-    List<Double>[] layers; // layer[0-3] ~ 1-4
+    List<Double>[] rates; // layer[0-3] ~ use only 1-3
     boolean userPresent = false;
-    int userLayer; // 1-4
+    int layerInteractingWithUser; // 1-3
+    
+    public final double[] PRIORITY = {0, .5, .33, .17};
+    
+    public Part(double r, int s) {
+        rates = new ArrayList[4];
+        for (int i = 1; i < rates.length; i++) {
+            rates[i] = new ArrayList<Double>();
+            for (int j = 0; j < s; j++)
+            	rates[i].add(r);
+        }
+    }
+    
+    public Part(double[] r, int[] s) {
+        rates = new ArrayList[4];
+        for (int i = 1; i < rates.length; i++) {
+            rates[i] = new ArrayList<Double>();
+            for (int j = 0; j < s[i-1]; j++)
+            	rates[i].add(r[i-1]);
+        }
+    }
     
     public Part(String fileName) {
-        
-        layers = new ArrayList[3];
-        for (int i = 0; i < layers.length; i++)
-            layers[i] = new ArrayList<Double>();
+        rates = new ArrayList[4];
+        for (int i = 1; i < rates.length; i++)
+            rates[i] = new ArrayList<Double>();
         
         String line = null;
         String[] vals;
@@ -31,11 +49,11 @@ public class Part {
             BufferedReader bufferedReader = 
                 new BufferedReader(fileReader);
 
-            for (int i = 0; i < layers.length; i++) {
+            for (int i = 1; i < rates.length; i++) {
                 line = bufferedReader.readLine();
                 vals = line.split(" ");
                 for (String val : vals)
-                    layers[i].add(Double.parseDouble(val));
+                    rates[i].add(Double.parseDouble(val));
             }
 
             // Always close files.
@@ -58,41 +76,49 @@ public class Part {
     
     public double mA() {
         double ret = 0;
-        
-        for (int i = 0; i < 3; i++)
-            ret += layerVal(layers[i], i+1);
-        
+        int numberOfSensorsDetectingUser;
+        // For each layer
+        for (int i = 1; i < rates.length; i++) {
+        	int numberOfAccurateSensor = numberOfAccurateSensorAtLayer(i);
+        	if (userPresent)//if (userPresent && i == layerInteractingWithUser)
+            	numberOfSensorsDetectingUser = numberOfAccurateSensor;
+            else numberOfSensorsDetectingUser = rates[i].size() - numberOfAccurateSensor;
+        	if (rates[i].size() != 0) ret += PRIORITY[i] * numberOfSensorsDetectingUser/rates[i].size();
+        	
+        	//System.out.print("[" +  numberOfAccurateSensor + ", " + numberOfSensorsDetectingUser +  "/" + rates[i].size() + "]");
+        }
+        //System.out.println();
         return ret;
     }
     
-    private double layerVal(List<Double> list, int layer) {
-        int numberActiveSensors = 0;
-        for (double rate : list) {
-            if (Math.random() > rate) numberActiveSensors++;
+    public int numberOfAccurateSensorAtLayer(int i) {
+        int n = 0;
+        for (double rate : rates[i]) {
+            if (Math.random() <= rate) n++;
         }
-        
-        double ret = (double) numberActiveSensors/list.size()/layer; 
-        if (userPresent) return ret;
-        else return 1-ret;
+        return n;
     }
     
     public String toString() {
-        return layers[0].toString() + layers[1].toString() + layers[2].toString();
+        return rates[0].toString() + rates[1].toString() + rates[2].toString();
+    }
+  
+    public void setLocation(boolean userPresent, int userLayer) {
+    	this.userPresent = userPresent;
+    	this.layerInteractingWithUser = userLayer;
     }
     
-    public boolean isUserPresent() {
-        return userPresent;
-    }
-
-    public void setUserPresent(boolean userPresent) {
-        this.userPresent = userPresent;
-    }
-
-    public int getUserLayer() {
-        return userLayer;
-    }
-
-    public void setUserLayer(int userLayer) {
-        this.userLayer = userLayer;
+    // Test
+    public static void main(String[] args) {
+    	Part part = new Part(FuzzyHome.BASE + "part1.txt");
+    	
+    	part.setLocation(true, 1);
+    	
+    	System.out.println("mA(): " + part.mA());
+  
+    	part.setLocation(false, 1);
+    	
+    	System.out.println("mA(): " + part.mA());
+  
     }
 }
