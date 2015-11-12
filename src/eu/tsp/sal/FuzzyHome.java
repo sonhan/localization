@@ -20,8 +20,32 @@ public class FuzzyHome {
     	//experiment_mA(.2); // Before use: uncomment System.out.println(Arrays.toString(mAs));
     	//for (int i = 0; i < 100; i++) experiment_mA_distribution(.1); // Before use: uncomment System.out.println(Arrays.toString(mAs));
     	
-    	for (double error = STEP; error <= LIMIT; error += STEP) 
-    		experiment_layer(error, 1); // // Before use: comment System.out.println(Arrays.toString(mAs));
+    	// for (double error = STEP; error <= LIMIT; error += STEP) experiment_layer(error, 1); // // Before use: comment System.out.println(Arrays.toString(mAs));
+    	
+    	experiment_time(3, 1);
+    	experiment_time(3, 2);
+    	experiment_time(3, 3);
+    	experiment_time(7, 1);
+    	experiment_time(2, 1);
+    	experiment_time(7, 1);
+    	experiment_time(1, 1);
+    	experiment_time(1, 2);
+        experiment_time(1, 3);
+        
+    }
+    
+    // show detection success rate at a particular TIME (part, layer)
+    private void experiment_time(int part, int layer) {
+        for (double error = STEP; error <= LIMIT; error += STEP) {
+            initializeFault(error, 0);
+        
+            int count = 0;
+            
+            for (int i = 0; i < 100; i++)
+                if (setUserLocation(part, layer)) count++;
+            System.out.print(count + " ");
+        }
+        System.out.println();
     }
     
     // show detection success rate for 3 layers of PART (part) at SENSOR ERROR (error)
